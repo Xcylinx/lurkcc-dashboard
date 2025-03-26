@@ -29,7 +29,7 @@ const Login = () => {
         <Card className="glass-morphism">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold tracking-tight text-gradient">
-              Cosmic Execution Hub
+              lurk.cc
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               Enter your license key to access your dashboard

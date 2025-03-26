@@ -50,7 +50,7 @@ const Register = () => {
         <Card className="glass-morphism">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold tracking-tight text-gradient">
-              Register Client
+              lurk.cc Register
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               Development tool for client registration

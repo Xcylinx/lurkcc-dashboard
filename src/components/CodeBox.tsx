@@ -47,11 +47,18 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
               className="h-8 w-8 p-0 bg-white/5 hover:bg-white/10"
               onClick={() => setShowKey(!showKey)}
             >
-              {showKey ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              <motion.div
+                initial={false}
+                animate={{ opacity: [1, 0, 1], scale: [1, 0.8, 1] }}
+                transition={{ duration: 0.3, times: [0, 0.5, 1] }}
+                key={showKey ? "eyeoff" : "eye"}
+              >
+                {showKey ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </motion.div>
               <span className="sr-only">{showKey ? "Hide" : "Show"} key</span>
             </Button>
             <Button
@@ -60,17 +67,24 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
               className="h-8 w-8 p-0 bg-white/5 hover:bg-white/10"
               onClick={copyToClipboard}
             >
-              {copied ? (
-                <Check className="h-4 w-4 text-green-500" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
+              <motion.div
+                initial={false}
+                animate={{ opacity: [1, 0, 1], scale: [1, 0.8, 1] }}
+                transition={{ duration: 0.3, times: [0, 0.5, 1] }}
+                key={copied ? "check" : "copy"}
+              >
+                {copied ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </motion.div>
               <span className="sr-only">Copy code</span>
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="code-box relative overflow-hidden rounded-md">
+          <div className="code-box relative overflow-hidden rounded-md select-none">
             <pre className="text-sm">
               <code>
                 <span className="code-line">

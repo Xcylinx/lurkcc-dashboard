@@ -16,7 +16,7 @@ const Navbar = () => {
     >
       <div className="flex items-center">
         <h1 className="text-xl font-bold tracking-tight text-gradient">
-          Cosmic Execution Hub
+          lurk.cc
         </h1>
       </div>
       
@@ -32,7 +32,14 @@ const Navbar = () => {
           onClick={logout}
           className="bg-white/5 hover:bg-white/10"
         >
-          <LogOut className="h-4 w-4 mr-2" />
+          <motion.div
+            initial={false}
+            animate={{ opacity: [1, 0, 1], scale: [1, 0.8, 1] }}
+            transition={{ duration: 0.3, times: [0, 0.5, 1] }}
+            key="logout"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+          </motion.div>
           Logout
         </Button>
       </div>
