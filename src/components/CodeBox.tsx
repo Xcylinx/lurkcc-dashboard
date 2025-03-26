@@ -103,11 +103,14 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
         </CardHeader>
         <CardContent>
           <motion.div 
-            className="code-box relative overflow-hidden rounded-md user-select-none"
+            className="code-box relative overflow-hidden rounded-md"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            style={{ userSelect: "none" }}
+            style={{ 
+              userSelect: "none", 
+              pointerEvents: "none" 
+            }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none" />
             <pre className="text-sm">

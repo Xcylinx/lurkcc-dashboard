@@ -150,6 +150,7 @@ const Login = () => {
                     value={key}
                     onChange={(e) => setKey(e.target.value)}
                     className="bg-black/20 border-white/10 focus-visible:ring-white/20 pl-10"
+                    autoComplete="off"
                     required
                   />
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
