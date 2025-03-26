@@ -64,11 +64,108 @@
   .text-gradient {
     @apply bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent;
   }
+
+  .glass-card {
+    @apply backdrop-blur-md bg-white/10 border border-white/20 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300;
+  }
+
+  .shine-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shine-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to bottom right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+  }
+
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%) rotate(45deg);
+    }
+    100% {
+      transform: translateX(100%) rotate(45deg);
+    }
+  }
+
+  .user-select-none {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .hover-grow {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  .text-shadow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+
+  .hover-text-shadow:hover {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
 }
 
 /* Code highlighting styles */
 .code-box {
-  @apply font-mono bg-black/50 text-white p-4 rounded-lg;
+  @apply font-mono bg-black/50 text-white p-4 rounded-lg relative overflow-hidden;
+}
+
+.code-box::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none;
 }
 
 .code-box pre {
@@ -97,4 +194,72 @@
 
 .code-comment {
   @apply text-gray-500;
+}
+
+/* Animated gradient border */
+.gradient-border {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #8b5cf6, #2563eb, #06b6d4, #8b5cf6);
+  background-size: 400% 400%;
+  z-index: -1;
+  border-radius: inherit;
+  animation: border-animation 8s ease infinite;
+}
+
+@keyframes border-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glow effect */
+.glow {
+  box-shadow: 0 0 10px 0 rgba(138, 75, 175, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow:hover {
+  box-shadow: 0 0 20px 5px rgba(138, 75, 175, 0.3);
+}
+
+/* Animated background gradient */
+.bg-animate {
+  background: linear-gradient(-45deg, #2d1b69, #1f1235, #372549, #301b3f);
+  background-size: 400% 400%;
+  animation: bg-animation 15s ease infinite;
+}
+
+@keyframes bg-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Blur effect when modal is open */
+.blur-bg {
+  filter: blur(5px);
+  transition: filter 0.3s ease;
 }

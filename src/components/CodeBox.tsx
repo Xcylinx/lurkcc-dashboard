@@ -32,9 +32,12 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.3 }}
-      className="w-full"
+      whileHover={{ 
+        boxShadow: "0 0 15px 0 rgba(138, 75, 175, 0.2)",
+        transition: { duration: 0.2 } 
+      }}
     >
-      <Card className="glass-morphism">
+      <Card className="glass-morphism border-white/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div>
             <CardTitle className="text-lg">Loader Code</CardTitle>
@@ -44,13 +47,21 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0 bg-white/5 hover:bg-white/10"
+              className="h-8 w-8 p-0 bg-white/5 hover:bg-white/10 relative overflow-hidden"
               onClick={() => setShowKey(!showKey)}
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               <motion.div
                 initial={false}
-                animate={{ opacity: [1, 0, 1], scale: [1, 0.8, 1] }}
-                transition={{ duration: 0.3, times: [0, 0.5, 1] }}
+                animate={{ 
+                  opacity: [1, 0, 1], 
+                  scale: [1, 0.8, 1],
+                  rotate: showKey ? 180 : 0 
+                }}
+                transition={{ 
+                  duration: 0.3, 
+                  times: [0, 0.5, 1]
+                }}
                 key={showKey ? "eyeoff" : "eye"}
               >
                 {showKey ? (
@@ -64,13 +75,20 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0 bg-white/5 hover:bg-white/10"
+              className="h-8 w-8 p-0 bg-white/5 hover:bg-white/10 relative overflow-hidden"
               onClick={copyToClipboard}
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               <motion.div
                 initial={false}
-                animate={{ opacity: [1, 0, 1], scale: [1, 0.8, 1] }}
-                transition={{ duration: 0.3, times: [0, 0.5, 1] }}
+                animate={{ 
+                  opacity: [1, 0, 1], 
+                  scale: [1, 0.8, 1] 
+                }}
+                transition={{ 
+                  duration: 0.3, 
+                  times: [0, 0.5, 1]
+                }}
                 key={copied ? "check" : "copy"}
               >
                 {copied ? (
@@ -84,7 +102,14 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
           </div>
         </CardHeader>
         <CardContent>
-          <div className="code-box relative overflow-hidden rounded-md select-none">
+          <motion.div 
+            className="code-box relative overflow-hidden rounded-md user-select-none"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            style={{ userSelect: "none" }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none" />
             <pre className="text-sm">
               <code>
                 <span className="code-line">
@@ -100,7 +125,31 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
                 </span>
               </code>
             </pre>
-          </div>
+            
+            {/* Animated particles */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute h-px w-8 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent"
+                  initial={{ 
+                    left: "-10%", 
+                    top: `${20 + i * 15}%`,
+                    opacity: 0.3 + (i * 0.1)
+                  }}
+                  animate={{
+                    left: "110%",
+                  }}
+                  transition={{
+                    duration: 2 + i,
+                    repeat: Infinity,
+                    repeatDelay: i * 2,
+                    ease: "linear",
+                  }}
+                />
+              ))}
+            </div>
+          </motion.div>
         </CardContent>
       </Card>
     </motion.div>
