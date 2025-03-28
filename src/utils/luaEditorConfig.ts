@@ -1,5 +1,6 @@
 
 import { Monaco } from "@monaco-editor/react";
+import * as monaco from "monaco-editor";
 
 // Function to register Lua language in Monaco editor
 export const configureLuaLanguage = (monaco: Monaco) => {
@@ -101,46 +102,46 @@ export const configureLuaLanguage = (monaco: Monaco) => {
     
     // Register Lua code completion provider with Roblox specifics
     monaco.languages.registerCompletionItemProvider('lua', {
-      provideCompletionItems: (model, position) => {
-        const word = model.getWordUntilPosition(position);
+      provideCompletionItems: (model, position, context, token) => {
+        const wordInfo = model.getWordUntilPosition(position);
         const range = {
           startLineNumber: position.lineNumber,
           endLineNumber: position.lineNumber,
-          startColumn: word.startColumn,
-          endColumn: word.endColumn
+          startColumn: wordInfo.startColumn,
+          endColumn: wordInfo.endColumn
         };
 
         // Common Lua suggestions
         const luaSuggestions = [
-          { label: 'function', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'function', detail: 'Define a function', range: range },
-          { label: 'local', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'local', detail: 'Declare a local variable', range: range },
-          { label: 'if', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'if ${1:condition} then\n\t${2}\nend', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'If statement', range: range },
-          { label: 'for', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'for ${1:i}=${2:1},${3:10} do\n\t${4}\nend', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'For loop', range: range },
-          { label: 'while', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'while ${1:condition} do\n\t${2}\nend', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'While loop', range: range },
-          { label: 'print', kind: monaco.languages.CompletionItemKind.Function, insertText: 'print(${1})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Print to console', range: range },
-          { label: 'return', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'return ${1}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Return statement', range: range }
+          { label: 'function', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'function', detail: 'Define a function', range },
+          { label: 'local', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'local', detail: 'Declare a local variable', range },
+          { label: 'if', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'if ${1:condition} then\n\t${2}\nend', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'If statement', range },
+          { label: 'for', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'for ${1:i}=${2:1},${3:10} do\n\t${4}\nend', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'For loop', range },
+          { label: 'while', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'while ${1:condition} do\n\t${2}\nend', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'While loop', range },
+          { label: 'print', kind: monaco.languages.CompletionItemKind.Function, insertText: 'print(${1})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Print to console', range },
+          { label: 'return', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'return ${1}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Return statement', range }
         ];
         
         // Roblox-specific suggestions
         const robloxSuggestions = [
-          { label: 'game:GetService', kind: monaco.languages.CompletionItemKind.Method, insertText: 'game:GetService("${1:ServiceName}")', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Get a Roblox service', range: range },
-          { label: 'workspace', kind: monaco.languages.CompletionItemKind.Variable, insertText: 'workspace', detail: 'The Workspace service', range: range },
-          { label: 'Instance.new', kind: monaco.languages.CompletionItemKind.Function, insertText: 'Instance.new("${1:ClassName}")', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Create a new instance', range: range },
-          { label: 'Vector3.new', kind: monaco.languages.CompletionItemKind.Function, insertText: 'Vector3.new(${1:0}, ${2:0}, ${3:0})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Create a new Vector3', range: range },
-          { label: 'CFrame.new', kind: monaco.languages.CompletionItemKind.Function, insertText: 'CFrame.new(${1:0}, ${2:0}, ${3:0})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Create a new CFrame', range: range },
-          { label: 'Color3.fromRGB', kind: monaco.languages.CompletionItemKind.Function, insertText: 'Color3.fromRGB(${1:255}, ${2:255}, ${3:255})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Create a Color3 from RGB values', range: range },
-          { label: 'task.wait', kind: monaco.languages.CompletionItemKind.Function, insertText: 'task.wait(${1:seconds})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Wait for the specified time', range: range },
-          { label: 'task.spawn', kind: monaco.languages.CompletionItemKind.Function, insertText: 'task.spawn(function()\n\t${1}\nend)', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Spawn a new thread', range: range }
+          { label: 'game:GetService', kind: monaco.languages.CompletionItemKind.Method, insertText: 'game:GetService("${1:ServiceName}")', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Get a Roblox service', range },
+          { label: 'workspace', kind: monaco.languages.CompletionItemKind.Variable, insertText: 'workspace', detail: 'The Workspace service', range },
+          { label: 'Instance.new', kind: monaco.languages.CompletionItemKind.Function, insertText: 'Instance.new("${1:ClassName}")', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Create a new instance', range },
+          { label: 'Vector3.new', kind: monaco.languages.CompletionItemKind.Function, insertText: 'Vector3.new(${1:0}, ${2:0}, ${3:0})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Create a new Vector3', range },
+          { label: 'CFrame.new', kind: monaco.languages.CompletionItemKind.Function, insertText: 'CFrame.new(${1:0}, ${2:0}, ${3:0})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Create a new CFrame', range },
+          { label: 'Color3.fromRGB', kind: monaco.languages.CompletionItemKind.Function, insertText: 'Color3.fromRGB(${1:255}, ${2:255}, ${3:255})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Create a Color3 from RGB values', range },
+          { label: 'task.wait', kind: monaco.languages.CompletionItemKind.Function, insertText: 'task.wait(${1:seconds})', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Wait for the specified time', range },
+          { label: 'task.spawn', kind: monaco.languages.CompletionItemKind.Function, insertText: 'task.spawn(function()\n\t${1}\nend)', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Spawn a new thread', range }
         ];
         
         // Roblox service suggestions
         const serviceSuggestions = [
-          { label: 'Players', kind: monaco.languages.CompletionItemKind.Class, insertText: 'Players', detail: 'The Players service', range: range },
-          { label: 'ReplicatedStorage', kind: monaco.languages.CompletionItemKind.Class, insertText: 'ReplicatedStorage', detail: 'The ReplicatedStorage service', range: range },
-          { label: 'TweenService', kind: monaco.languages.CompletionItemKind.Class, insertText: 'TweenService', detail: 'The TweenService for animations', range: range },
-          { label: 'UserInputService', kind: monaco.languages.CompletionItemKind.Class, insertText: 'UserInputService', detail: 'The UserInputService for input handling', range: range },
-          { label: 'RunService', kind: monaco.languages.CompletionItemKind.Class, insertText: 'RunService', detail: 'The RunService for game lifecycle events', range: range },
-          { label: 'HttpService', kind: monaco.languages.CompletionItemKind.Class, insertText: 'HttpService', detail: 'The HttpService for web requests', range: range }
+          { label: 'Players', kind: monaco.languages.CompletionItemKind.Class, insertText: 'Players', detail: 'The Players service', range },
+          { label: 'ReplicatedStorage', kind: monaco.languages.CompletionItemKind.Class, insertText: 'ReplicatedStorage', detail: 'The ReplicatedStorage service', range },
+          { label: 'TweenService', kind: monaco.languages.CompletionItemKind.Class, insertText: 'TweenService', detail: 'The TweenService for animations', range },
+          { label: 'UserInputService', kind: monaco.languages.CompletionItemKind.Class, insertText: 'UserInputService', detail: 'The UserInputService for input handling', range },
+          { label: 'RunService', kind: monaco.languages.CompletionItemKind.Class, insertText: 'RunService', detail: 'The RunService for game lifecycle events', range },
+          { label: 'HttpService', kind: monaco.languages.CompletionItemKind.Class, insertText: 'HttpService', detail: 'The HttpService for web requests', range }
         ];
         
         return {
