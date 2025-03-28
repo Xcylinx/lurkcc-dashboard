@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { AuthContextType, Client } from "../types";
 import { api } from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -11,6 +11,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [client, setClient] = useState<Client | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
     // Check for saved auth token in localStorage
@@ -22,7 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .then(result => {
           if (result) {
             setClient(result);
-            navigate("/dashboard");
+            // We'll let the routes handle the navigation based on isAuthenticated
           } else {
             // Invalid saved key
             localStorage.removeItem("auth_key");
@@ -51,7 +52,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setClient(result);
         localStorage.setItem("auth_key", key);
         toast.success("Successfully logged in");
-        navigate("/dashboard");
+        
+        // Instead of hardcoding the navigation to dashboard,
+        // use the location state to determine where to redirect
+        const from = location.state?.from?.pathname || "/dashboard";
+        navigate(from);
+        
         return true;
       } else {
         toast.error("Invalid license key");

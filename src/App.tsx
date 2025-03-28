@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { useState, useEffect } from "react";
 import Login from "./pages/Login";
@@ -18,6 +18,7 @@ const queryClient = new QueryClient();
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
   
   // Show loading state
   if (isLoading) {
@@ -31,9 +32,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated, and save the location
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
   return <>{children}</>;
@@ -73,7 +74,7 @@ const AppRoutes = () => {
         <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/lua-editor" element={<ProtectedRoute><LuaEditor /></ProtectedRoute>} />
-        <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   );
