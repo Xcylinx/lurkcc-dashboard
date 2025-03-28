@@ -32,8 +32,12 @@ const LuaEditor = () => {
   };
   
   const handleExecute = () => {
-    // This is just a simulation - in a real world scenario, this would
-    // send the code to Roblox for execution
+    // Send the code to the Roblox executor
+    window.postMessage({ 
+      type: "EXECUTE_LUA", 
+      code 
+    }, "*");
+    
     toast.success("Code executed in Roblox", {
       description: "The script has been sent to the Roblox client",
     });
@@ -55,9 +59,9 @@ const LuaEditor = () => {
           <p className="text-muted-foreground">Write and execute Lua scripts directly in your browser</p>
         </motion.div>
         
-        <Card className="flex-1 overflow-hidden glass-morphism border-white/5">
-          <CardContent className="p-0 h-full flex flex-col">
-            <div className="h-full flex-1 min-h-[500px]">
+        <Card className="flex-1 flex flex-col overflow-hidden glass-morphism border-white/5">
+          <CardContent className="p-0 h-full flex flex-col flex-1">
+            <div className="flex-1 relative">
               <LuaCodeEditor
                 code={code}
                 onChange={(value) => setCode(value || "")}
