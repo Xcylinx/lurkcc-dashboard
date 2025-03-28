@@ -2,264 +2,76 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    
-    --radius: 0.75rem;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 216 34% 17%;
+
+    --radius: 0.5rem;
   }
 }
-
+ 
 @layer base {
   * {
-    @apply border-border selection:bg-white/10 selection:text-white;
+    @apply border-border;
   }
-  
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-  }
-
-  html {
-    @apply scroll-smooth;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-@layer utilities {
-  .glass-morphism {
-    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3)];
-  }
-  
-  .neo-blur {
-    @apply backdrop-blur-2xl bg-black/40 border border-white/10;
-  }
-  
-  .text-gradient {
-    @apply bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent;
-  }
-
-  .glass-card {
-    @apply backdrop-blur-md bg-white/10 border border-white/20 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300;
-  }
-
-  .shine-effect {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .shine-effect::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      to bottom right,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.05) 50%,
-      rgba(255, 255, 255, 0) 100%
-    );
-    transform: rotate(45deg);
-    animation: shine 3s infinite;
-  }
-
-  @keyframes shine {
-    0% {
-      transform: translateX(-100%) rotate(45deg);
-    }
-    100% {
-      transform: translateX(100%) rotate(45deg);
-    }
-  }
-
-  .user-select-none {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  .scrollbar-hidden::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scrollbar-hidden {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-    100% {
-      transform: translateY(0px);
-    }
-  }
-
-  .animate-pulse-slow {
-    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes pulse-slow {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-
-  .hover-grow {
-    @apply transition-transform duration-300 hover:scale-105;
-  }
-
-  .text-shadow {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  }
-
-  .hover-text-shadow:hover {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  }
+/* Add this part for monaco editor */
+.monaco-editor .overflow-guard {
+  @apply rounded-none;
 }
 
-/* Code highlighting styles */
-.code-box {
-  @apply font-mono bg-black/50 text-white p-4 rounded-lg relative overflow-hidden;
+/* Custom glass morphism effect */
+.glass-morphism {
+  @apply bg-black/30 backdrop-filter backdrop-blur-lg;
 }
 
-.code-box::before {
-  content: '';
-  @apply absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none;
+/* Text gradient effect */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-blue-500 to-teal-500;
 }
 
-.code-box pre {
-  @apply overflow-x-auto;
+/* Editor specific overrides */
+.editor-wrapper {
+  @apply h-full;
 }
 
-.code-line {
-  @apply block;
+.editor-wrapper .monaco-editor {
+  @apply !bg-transparent;
 }
 
-.code-keyword {
-  @apply text-blue-400;
-}
-
-.code-string {
-  @apply text-green-400;
-}
-
-.code-function {
-  @apply text-yellow-400;
-}
-
-.code-variable {
-  @apply text-purple-400;
-}
-
-.code-comment {
-  @apply text-gray-500;
-}
-
-/* Animated gradient border */
-.gradient-border {
-  position: relative;
-  border-radius: 0.75rem;
-  overflow: hidden;
-}
-
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, #8b5cf6, #2563eb, #06b6d4, #8b5cf6);
-  background-size: 400% 400%;
-  z-index: -1;
-  border-radius: inherit;
-  animation: border-animation 8s ease infinite;
-}
-
-@keyframes border-animation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Glow effect */
-.glow {
-  box-shadow: 0 0 10px 0 rgba(138, 75, 175, 0.2);
-  transition: box-shadow 0.3s ease;
-}
-
-.glow:hover {
-  box-shadow: 0 0 20px 5px rgba(138, 75, 175, 0.3);
-}
-
-/* Animated background gradient */
-.bg-animate {
-  background: linear-gradient(-45deg, #2d1b69, #1f1235, #372549, #301b3f);
-  background-size: 400% 400%;
-  animation: bg-animation 15s ease infinite;
-}
-
-@keyframes bg-animation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Blur effect when modal is open */
-.blur-bg {
-  filter: blur(5px);
-  transition: filter 0.3s ease;
+.editor-wrapper .monaco-editor .margin {
+  @apply !bg-black/30;
 }

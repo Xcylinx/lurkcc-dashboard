@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthProvider";
-import Navbar from "../components/Navbar";
+import NavigationBar from "../components/NavigationBar";
 import Statistics from "../components/Statistics";
 import CodeBox from "../components/CodeBox";
 import ClientInfo from "../components/ClientInfo";
@@ -68,7 +68,7 @@ const Dashboard = () => {
         ))}
       </div>
       
-      <Navbar />
+      <NavigationBar />
       
       <main className="flex-1 container max-w-5xl mx-auto px-4 py-8 relative z-10">
         <motion.div 
@@ -168,21 +168,6 @@ const Dashboard = () => {
           </Collapsible>
         </div>
       </main>
-      
-      {/* Animated footer accent */}
-      <div className="h-1 w-full bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 relative overflow-hidden">
-        <motion.div
-          className="absolute inset-0 bg-white/30"
-          animate={{
-            x: ["-100%", "100%"],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
-      </div>
     </div>
   );
 };
