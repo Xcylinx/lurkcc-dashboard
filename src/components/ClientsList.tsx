@@ -6,7 +6,8 @@ import {
   Monitor, 
   MapPin,
   Clock,
-  Key
+  Key,
+  Check
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";

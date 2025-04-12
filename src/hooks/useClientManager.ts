@@ -178,6 +178,6 @@ export const useClientManager = () => {
 // Add a declaration for the mock interval to the Window interface
 declare global {
   interface Window {
-    _mockClientUpdateInterval?: number;
+    _mockClientUpdateInterval?: NodeJS.Timeout;
   }
 }
