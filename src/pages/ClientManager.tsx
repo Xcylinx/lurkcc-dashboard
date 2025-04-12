@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/AuthProvider";
-import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
 import {
   Command,
@@ -49,8 +48,6 @@ const ClientManager = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Navbar />
-
       <div className="flex-1 container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

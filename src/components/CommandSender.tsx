@@ -2,7 +2,7 @@
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Terminal, ArrowUpCircle } from "lucide-react";
+import { Send, Terminal, ArrowUpCircle, Wand2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CommandSenderProps {
@@ -49,32 +49,32 @@ const CommandSender: React.FC<CommandSenderProps> = ({
           value={command}
           onChange={(e) => setCommand(e.target.value)}
           placeholder={disabled ? "Select clients first..." : "Type a command..."}
-          className="pr-20 font-mono text-sm"
+          className="pr-24 font-mono text-sm bg-background/80 border-primary/20 focus-visible:border-primary/50 h-10"
           disabled={disabled}
         />
         <Button 
           type="submit" 
           size="sm" 
-          className="absolute right-1 top-1 h-7"
+          className="absolute right-1 top-1 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 border-none shadow-md"
           disabled={disabled || !command.trim()}
         >
           <Send className="h-3.5 w-3.5 mr-1.5" />
-          Send
+          Execute
         </Button>
       </form>
       
       {/* Command history */}
       {commandHistory.length > 0 && (
-        <div className="rounded-md border border-border/40 overflow-hidden">
-          <div className="bg-muted/30 px-3 py-1 border-b border-border/40 flex items-center justify-between">
+        <div className="rounded-md border border-border/40 overflow-hidden shadow-sm">
+          <div className="bg-muted/30 px-3 py-1.5 border-b border-border/40 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <Terminal className="h-3.5 w-3.5 text-muted-foreground" />
+              <Terminal className="h-3.5 w-3.5 text-primary/70" />
               <span className="text-xs font-medium">Command History</span>
             </div>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-6 text-xs"
+              className="h-6 text-xs hover:bg-background/60"
               onClick={() => setCommandHistory([])}
             >
               Clear
@@ -86,10 +86,10 @@ const CommandSender: React.FC<CommandSenderProps> = ({
               {commandHistory.map((cmd, index) => (
                 <div 
                   key={index}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/20 group cursor-pointer"
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/20 group cursor-pointer transition-colors"
                   onClick={() => setCommand(cmd)}
                 >
-                  <ArrowUpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Wand2 className="h-3.5 w-3.5 text-primary/60" />
                   <span className="text-xs font-mono flex-1 truncate">{cmd}</span>
                   <Button 
                     variant="ghost" 

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "./AuthProvider";
 import { Button } from "@/components/ui/button";
-import { PanelRight, Home, Code, Users } from "lucide-react";
+import { PanelRight, Home, Users } from "lucide-react";
 
 const NavigationBar = () => {
   const location = useLocation();
@@ -17,11 +17,6 @@ const NavigationBar = () => {
       name: "Dashboard",
       path: "/dashboard",
       icon: Home,
-    },
-    {
-      name: "Lua Editor",
-      path: "/lua-editor",
-      icon: Code,
     },
     {
       name: "Client Manager",

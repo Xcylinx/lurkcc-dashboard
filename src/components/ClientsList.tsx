@@ -42,7 +42,7 @@ const ClientsList: React.FC<ClientsListProps> = ({
 
   return (
     <ScrollArea className="h-[500px] pr-4">
-      <div className="space-y-3">
+      <div className="space-y-3 pb-2">
         {clients.map((client) => {
           const isSelected = selectedClients.includes(client.id);
           
@@ -53,7 +53,7 @@ const ClientsList: React.FC<ClientsListProps> = ({
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.01 }}
               transition={{ duration: 0.2 }}
-              className={`p-3 rounded-md border cursor-pointer transition-all ${
+              className={`p-3 rounded-md border cursor-pointer transition-all overflow-hidden ${
                 isSelected
                   ? "bg-primary/10 border-primary/30"
                   : "bg-card/30 border-border/30 hover:bg-card/50"
