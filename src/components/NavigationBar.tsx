@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "./AuthProvider";
 import { Button } from "@/components/ui/button";
-import { PanelRight, Home, Users } from "lucide-react";
+import { PanelRight, Home, Users, LogOut } from "lucide-react";
 
 const NavigationBar = () => {
   const location = useLocation();
@@ -53,7 +53,6 @@ const NavigationBar = () => {
         {navItems.map((item) => (
           <Link to={item.path} key={item.path}>
             <motion.div
-              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={cn(
                 "flex items-center gap-3 p-2.5 rounded-lg overflow-hidden transition-colors",
@@ -86,7 +85,7 @@ const NavigationBar = () => {
             !expanded && "px-0 justify-center"
           )}
         >
-          <PanelRight className="h-5 w-5 rotate-180" />
+          <LogOut className="h-5 w-5" />
           {expanded && <span className="ml-2">Logout</span>}
         </Button>
       </div>

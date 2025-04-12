@@ -55,7 +55,7 @@ const CommandSender: React.FC<CommandSenderProps> = ({
         <Button 
           type="submit" 
           size="sm" 
-          className="absolute right-1 top-1 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 border-none shadow-md"
+          className="absolute right-1 top-1 h-8 bg-primary hover:bg-primary/90 border-none shadow-md"
           disabled={disabled || !command.trim()}
         >
           <Send className="h-3.5 w-3.5 mr-1.5" />

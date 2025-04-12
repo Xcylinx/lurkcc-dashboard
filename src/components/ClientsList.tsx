@@ -3,10 +3,8 @@ import React from "react";
 import { 
   Laptop, 
   User, 
-  Monitor, 
   MapPin,
   Clock,
-  Key,
   Check
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -51,12 +49,11 @@ const ClientsList: React.FC<ClientsListProps> = ({
               key={client.id}
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.01 }}
               transition={{ duration: 0.2 }}
-              className={`p-3 rounded-md border cursor-pointer transition-all overflow-hidden ${
+              className={`p-3 rounded-md border cursor-pointer transition-colors overflow-hidden ${
                 isSelected
                   ? "bg-primary/10 border-primary/30"
-                  : "bg-card/30 border-border/30 hover:bg-card/50"
+                  : "bg-card/30 border-border/30 hover:bg-card/40"
               }`}
               onClick={() => toggleClientSelection(client.id)}
             >

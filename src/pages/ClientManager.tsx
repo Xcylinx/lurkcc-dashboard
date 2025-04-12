@@ -1,26 +1,20 @@
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/components/AuthProvider";
+import React from "react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
-  Command,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from "@/components/ui/command";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Laptop,
-  Send,
-  X,
-  ListFilter,
   RefreshCw,
-  TerminalSquare,
   Check,
+  X,
   Skull,
   Eye,
   EyeOff,
@@ -28,13 +22,11 @@ import {
   Flame,
   Shield,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import CommandSender from "@/components/CommandSender";
 import ClientsList from "@/components/ClientsList";
 import { useClientManager } from "@/hooks/useClientManager";
 
 const ClientManager = () => {
-  const { client } = useAuth();
   const {
     clients,
     selectedClients,
@@ -55,7 +47,7 @@ const ClientManager = () => {
           transition={{ duration: 0.3 }}
           className="mb-6 text-left"
         >
-          <h1 className="text-3xl font-bold text-gradient mb-2">Client Manager</h1>
+          <h1 className="text-3xl font-bold text-primary mb-2">Client Manager</h1>
           <p className="text-muted-foreground">Manage and control your Roblox clients remotely</p>
         </motion.div>
 

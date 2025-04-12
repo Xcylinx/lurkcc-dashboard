@@ -33,7 +33,7 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.3 }}
       whileHover={{ 
-        boxShadow: "0 0 15px 0 rgba(138, 75, 175, 0.2)",
+        boxShadow: "0 0 15px 0 rgba(255, 255, 255, 0.1)",
         transition: { duration: 0.2 } 
       }}
     >
@@ -50,7 +50,6 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
               className="h-8 w-8 p-0 bg-white/5 hover:bg-white/10 relative overflow-hidden"
               onClick={() => setShowKey(!showKey)}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               <motion.div
                 initial={false}
                 animate={{ 
@@ -78,7 +77,6 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
               className="h-8 w-8 p-0 bg-white/5 hover:bg-white/10 relative overflow-hidden"
               onClick={copyToClipboard}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               <motion.div
                 initial={false}
                 animate={{ 
@@ -112,46 +110,16 @@ loadstring(game:HttpGet('https://kya.jvck.net/aura'))()`;
               pointerEvents: "none" 
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none" />
-            <pre className="text-sm">
+            <pre className="text-sm bg-black/20 p-3 rounded-md">
               <code>
-                <span className="code-line">
-                  <span className="code-keyword">getgenv</span>().
-                  <span className="code-variable">key</span> = 
-                  <span className="code-string">'{showKey ? licenseKey : "*".repeat(licenseKey.length)}'</span>
+                <span className="block text-blue-300">
+                  getgenv().key = '{showKey ? licenseKey : "*".repeat(licenseKey.length)}'
                 </span>
-                <span className="code-line">
-                  <span className="code-keyword">loadstring</span>(
-                  <span className="code-variable">game</span>:
-                  <span className="code-function">HttpGet</span>(
-                  <span className="code-string">'https://kya.jvck.net/aura'</span>))()
+                <span className="block text-green-300">
+                  loadstring(game:HttpGet('https://kya.jvck.net/aura'))()
                 </span>
               </code>
             </pre>
-            
-            {/* Animated particles */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute h-px w-8 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent"
-                  initial={{ 
-                    left: "-10%", 
-                    top: `${20 + i * 15}%`,
-                    opacity: 0.3 + (i * 0.1)
-                  }}
-                  animate={{
-                    left: "110%",
-                  }}
-                  transition={{
-                    duration: 2 + i,
-                    repeat: Infinity,
-                    repeatDelay: i * 2,
-                    ease: "linear",
-                  }}
-                />
-              ))}
-            </div>
           </motion.div>
         </CardContent>
       </Card>

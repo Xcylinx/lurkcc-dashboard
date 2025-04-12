@@ -58,11 +58,6 @@
   @apply bg-black/30 backdrop-filter backdrop-blur-lg;
 }
 
-/* Text gradient effect */
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-blue-500 to-teal-500;
-}
-
 /* Editor specific overrides */
 .editor-wrapper {
   @apply h-full;
@@ -75,3 +70,4 @@
 .editor-wrapper .monaco-editor .margin {
   @apply !bg-black/30;
 }
+
