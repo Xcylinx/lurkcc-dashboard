@@ -7,7 +7,7 @@
 // Store connected clients
 interface ConnectedClient {
   id: string;
-  socket: WebSocket;
+  socket: WebSocket | null;
   username: string;
   place: string;
   userId: number;
@@ -22,12 +22,24 @@ class WebSocketManager {
   private server: WebSocket | null = null;
   private clients: Map<string, ConnectedClient> = new Map();
   private listeners: Map<string, Set<(data: any) => void>> = new Map();
+  private wsUrl: string;
 
   private constructor() {
+    // Use the deployed app URL for WebSocket connection
+    this.wsUrl = this.getWebSocketUrl();
+    
     // Initialize WebSocket server if we're in a browser environment
     if (typeof window !== 'undefined') {
       this.setupServer();
     }
+  }
+
+  private getWebSocketUrl(): string {
+    // Use secure WebSocket for production, regular for localhost
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const protocol = isLocalhost ? 'ws://' : 'wss://';
+    const host = isLocalhost ? window.location.host : 'lurkcc-dashboard.lovable.app';
+    return `${protocol}${host}/ws`;
   }
 
   public static getInstance(): WebSocketManager {
@@ -38,12 +50,22 @@ class WebSocketManager {
   }
 
   private setupServer() {
-    // In a real application, this would be a WebSocket server URL
-    // For this demonstration, we're creating a simple mock implementation
     console.log("Setting up WebSocket server for Roblox client connections");
-
-    // Simulate client connections
-    this.simulateClientConnections();
+    
+    try {
+      // In development, use the mock implementation
+      if (import.meta.env.DEV) {
+        this.simulateClientConnections();
+      } else {
+        // In production, attempt to establish a real WebSocket connection
+        // This would connect to a WebSocket server you'd need to set up on your backend
+        this.connectToServer();
+      }
+    } catch (error) {
+      console.error("Error setting up WebSocket server:", error);
+      // Fallback to simulation in case of error
+      this.simulateClientConnections();
+    }
 
     // Listen for window unload to properly close connections
     window.addEventListener('beforeunload', () => {
@@ -55,6 +77,65 @@ class WebSocketManager {
     });
   }
 
+  private connectToServer() {
+    console.log(`Attempting to connect to WebSocket server at ${this.wsUrl}`);
+    
+    try {
+      const socket = new WebSocket(this.wsUrl);
+      
+      socket.onopen = () => {
+        console.log("WebSocket connection established");
+        this.server = socket;
+        
+        // Send authentication if needed
+        // socket.send(JSON.stringify({ action: "authenticate", token: "your-auth-token" }));
+      };
+      
+      socket.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          this.handleServerMessage(message);
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
+      };
+      
+      socket.onclose = () => {
+        console.log("WebSocket connection closed");
+        this.server = null;
+        
+        // Attempt to reconnect after a delay
+        setTimeout(() => this.connectToServer(), 5000);
+      };
+      
+      socket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        socket.close();
+      };
+    } catch (error) {
+      console.error("Failed to connect to WebSocket server:", error);
+      // Fallback to simulation
+      this.simulateClientConnections();
+    }
+  }
+
+  private handleServerMessage(message: any) {
+    console.log("Received message from server:", message);
+    
+    if (message.action === "client_connected") {
+      this.handleClientConnection(message.data);
+    } else if (message.action === "client_disconnected") {
+      this.handleClientDisconnection(message.data.id);
+    } else if (message.action === "client_status_changed") {
+      const client = this.clients.get(message.data.id);
+      if (client) {
+        client.online = message.data.online;
+        client.lastSeen = message.data.lastSeen || new Date().toISOString();
+        this.emit('clientStatusChanged', client);
+      }
+    }
+  }
+
   // Method to get all connected clients
   public getConnectedClients(): ConnectedClient[] {
     return Array.from(this.clients.values());
@@ -62,12 +143,12 @@ class WebSocketManager {
 
   // Method to handle client connection
   public handleClientConnection(clientData: any) {
-    const clientId = `client-${this.clients.size + 1}`;
+    const clientId = clientData.id || `client-${this.clients.size + 1}`;
     
     // Create a client record
     const client: ConnectedClient = {
       id: clientId,
-      socket: null as unknown as WebSocket, // In a real implementation, this would be the actual socket
+      socket: null, // In a real implementation, this would be the actual socket
       username: clientData.username || `Player${this.clients.size + 1}`,
       place: clientData.place || "Unknown Place",
       userId: clientData.userId || 0,
@@ -103,16 +184,23 @@ class WebSocketManager {
     console.log(`Sending command to clients: ${clientIds.join(', ')}`, payload);
 
     // In a real implementation, this would send the payload to each client's WebSocket
-    clientIds.forEach(clientId => {
-      const client = this.clients.get(clientId);
-      if (client && client.online) {
-        // Simulate sending to the client
-        console.log(`Sending to client ${clientId}:`, payload);
-        
-        // In a real implementation:
-        // client.socket.send(JSON.stringify(payload));
-      }
-    });
+    if (this.server && this.server.readyState === WebSocket.OPEN) {
+      // Send to the server, which will route to the appropriate clients
+      this.server.send(JSON.stringify({
+        action: "broadcast_command",
+        clientIds: clientIds,
+        payload: payload
+      }));
+    } else {
+      // If we're in simulation mode or disconnected
+      clientIds.forEach(clientId => {
+        const client = this.clients.get(clientId);
+        if (client && client.online) {
+          // Simulate sending to the client
+          console.log(`Simulating command to client ${clientId}:`, payload);
+        }
+      });
+    }
 
     return true;
   }
@@ -219,7 +307,7 @@ class WebSocketManager {
 
 export default WebSocketManager;
 
-// Lua code example for Roblox clients to connect to this WebSocket server:
+// Example Lua code for Roblox clients to connect to this WebSocket server:
 /*
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -231,7 +319,7 @@ local function connectToWebSocket()
     
     -- Try to create a WebSocket connection
     local success, error = pcall(function()
-        websocket = WebSocket.connect("wss://yourdomain.com/ws")
+        websocket = WebSocket.connect("wss://lurkcc-dashboard.lovable.app/ws")
     end)
     
     if not success then

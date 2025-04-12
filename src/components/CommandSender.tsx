@@ -53,21 +53,22 @@ const CommandSender: React.FC<CommandSenderProps> = ({
           className="pr-12 font-mono text-sm bg-background/80 border-border focus-visible:border-primary/50 h-10"
           disabled={disabled}
         />
-        <motion.div 
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          className="absolute right-2 top-1/2 -translate-y-1/2"
-        >
-          <Button 
-            type="submit" 
-            size="icon"
-            variant="ghost"
-            className="h-8 w-8 rounded-full flex items-center justify-center text-primary hover:text-primary/90 hover:bg-primary/10 focus:bg-primary/5 transition-colors"
-            disabled={disabled || !command.trim()}
+        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+          <motion.div 
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <Send className="h-4 w-4" />
-          </Button>
-        </motion.div>
+            <Button 
+              type="submit" 
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-primary hover:text-primary/90 hover:bg-primary/10 focus:bg-primary/5 transition-colors"
+              disabled={disabled || !command.trim()}
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </motion.div>
+        </div>
       </form>
       
       {/* Command history */}
