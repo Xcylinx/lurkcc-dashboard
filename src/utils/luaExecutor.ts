@@ -11,7 +11,7 @@
 export const setupLuaExecutor = () => {
   // Listen for postMessage events from the page to the Roblox client
   window.addEventListener('message', (event) => {
-    // Only process messages with the EXECUTE_LUA type
+    // Process regular single-client execution
     if (event.data && event.data.type === 'EXECUTE_LUA') {
       // This is where the connection to Roblox would be handled
       // For now we'll just log it, but in a real implementation
@@ -21,6 +21,28 @@ export const setupLuaExecutor = () => {
       
       // Hypothetical connection to Roblox:
       // robloxConnection.send(event.data.code);
+    }
+    
+    // Process multi-client execution
+    if (event.data && event.data.type === 'EXECUTE_LUA_MULTIPLE') {
+      // Log the command being sent to multiple clients
+      console.log(`Sending command "${event.data.command}" to clients:`, event.data.clients);
+      
+      // In a real implementation, this would:
+      // 1. Look up the actual connected clients
+      // 2. Send the command to each selected client
+      // 3. Track the execution status of each command
+      
+      // For example:
+      // event.data.clients.forEach(clientId => {
+      //   const client = connectedClients.get(clientId);
+      //   if (client && client.connection) {
+      //     client.connection.send({
+      //       command: event.data.command,
+      //       timestamp: Date.now()
+      //     });
+      //   }
+      // });
     }
   });
 };
@@ -59,4 +81,79 @@ if (typeof window !== 'undefined') {
  * connection.OnMessage:Connect(function(code)
  *     executeCode(code)
  * end)
+ * 
+ * -- For the client manager, you would want to add:
+ * 
+ * -- Register this client with the web application
+ * local function registerClient()
+ *     local player = game.Players.LocalPlayer
+ *     local clientInfo = {
+ *         id = player.UserId, -- or some other unique identifier
+ *         name = "Client " .. player.Name,
+ *         username = player.Name,
+ *         place = game.PlaceId,
+ *     }
+ *     
+ *     -- Send registration info to web app
+ *     -- connection.send("REGISTER", clientInfo)
+ * end
+ * 
+ * -- Handle specific commands
+ * local commandHandlers = {
+ *     loopkill = function()
+ *         -- Implementation for loop killing
+ *         while wait(1) do
+ *             local character = game.Players.LocalPlayer.Character
+ *             if character and character:FindFirstChild("Humanoid") then
+ *                 character.Humanoid.Health = 0
+ *             end
+ *         end
+ *     end,
+ *     
+ *     hide = function()
+ *         -- Implementation to hide character
+ *         local character = game.Players.LocalPlayer.Character
+ *         if character then
+ *             for _, part in pairs(character:GetDescendants()) do
+ *                 if part:IsA("BasePart") or part:IsA("Decal") then
+ *                     part.Transparency = 1
+ *                 end
+ *             end
+ *         end
+ *     end,
+ *     
+ *     unhide = function()
+ *         -- Implementation to unhide character
+ *         local character = game.Players.LocalPlayer.Character
+ *         if character then
+ *             for _, part in pairs(character:GetDescendants()) do
+ *                 if part:IsA("BasePart") then
+ *                     if part.Name == "HumanoidRootPart" then
+ *                         part.Transparency = 1
+ *                     else
+ *                         part.Transparency = 0
+ *                     end
+ *                 elseif part:IsA("Decal") then
+ *                     part.Transparency = 0
+ *                 end
+ *             end
+ *         end
+ *     end,
+ *     
+ *     -- Add more commands as needed
+ * }
+ * 
+ * -- Process incoming commands
+ * connection.OnCommand:Connect(function(commandName)
+ *     local handler = commandHandlers[commandName]
+ *     if handler then
+ *         pcall(handler)
+ *     else
+ *         -- If not a predefined command, try to execute as Lua code
+ *         executeCode(commandName)
+ *     end
+ * end)
+ * 
+ * -- Register on join
+ * registerClient()
  */

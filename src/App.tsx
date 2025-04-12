@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import LuaEditor from "./pages/LuaEditor";
+import ClientManager from "./pages/ClientManager";
 import NotFound from "./pages/NotFound";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -74,6 +75,7 @@ const AppRoutes = () => {
         <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/lua-editor" element={<ProtectedRoute><LuaEditor /></ProtectedRoute>} />
+        <Route path="/client-manager" element={<ProtectedRoute><ClientManager /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
