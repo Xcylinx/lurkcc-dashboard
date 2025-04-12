@@ -2,101 +2,98 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { RobloxClient } from "@/types/clientManager";
-
-// Mock data for demonstration purposes
-const mockClients: RobloxClient[] = [
-  {
-    id: "client-1",
-    name: "Client 1",
-    username: "PlayerOne",
-    place: "Natural Disaster Survival",
-    online: true,
-    lastSeen: new Date().toISOString(),
-  },
-  {
-    id: "client-2",
-    name: "Client 2",
-    username: "PlayerTwo",
-    place: "Adopt Me!",
-    online: true,
-    lastSeen: new Date().toISOString(),
-  },
-  {
-    id: "client-3",
-    name: "Client 3",
-    username: "PlayerThree",
-    place: "Brookhaven",
-    online: false,
-    lastSeen: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: "client-4",
-    name: "Client 4",
-    username: "PlayerFour",
-    place: "Arsenal",
-    online: true,
-    lastSeen: new Date().toISOString(),
-  },
-  {
-    id: "client-5",
-    name: "Client 5",
-    username: "PlayerFive",
-    place: "Murder Mystery 2",
-    online: true,
-    lastSeen: new Date().toISOString(),
-  },
-];
+import WebSocketManager from "@/utils/websocketServer";
 
 export const useClientManager = () => {
   const [clients, setClients] = useState<RobloxClient[]>([]);
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const wsManager = WebSocketManager.getInstance();
 
-  // Load initial clients (mock data for demonstration)
+  // Load initial clients from WebSocket manager
   useEffect(() => {
-    // In a real application, this would be a WebSocket connection
-    // that listens for client connections/disconnections
-    setClients(mockClients);
-    
-    // Set up websocket listener for client updates
-    setupWebSocketListener();
+    // Set up event listeners for client connections/disconnections
+    const setupListeners = () => {
+      // Handle client connected event
+      const onClientConnected = (client: any) => {
+        setClients(prev => {
+          // Check if client already exists
+          const exists = prev.some(c => c.id === client.id);
+          if (exists) {
+            // Update existing client
+            return prev.map(c => c.id === client.id ? {
+              ...c,
+              online: true,
+              lastSeen: new Date().toISOString()
+            } : c);
+          } else {
+            // Add new client
+            return [...prev, {
+              id: client.id,
+              name: `Client ${client.username}`,
+              username: client.username,
+              place: client.place,
+              online: true,
+              lastSeen: new Date().toISOString()
+            }];
+          }
+        });
+      };
+
+      // Handle client disconnected event
+      const onClientDisconnected = (client: any) => {
+        setClients(prev => 
+          prev.map(c => c.id === client.id ? {
+            ...c,
+            online: false,
+            lastSeen: new Date().toISOString()
+          } : c)
+        );
+      };
+
+      // Handle client status changed event
+      const onClientStatusChanged = (client: any) => {
+        setClients(prev => 
+          prev.map(c => c.id === client.id ? {
+            ...c,
+            online: client.online,
+            lastSeen: new Date().toISOString()
+          } : c)
+        );
+      };
+
+      // Register event listeners
+      const unsubscribeConnected = wsManager.on('clientConnected', onClientConnected);
+      const unsubscribeDisconnected = wsManager.on('clientDisconnected', onClientDisconnected);
+      const unsubscribeStatusChanged = wsManager.on('clientStatusChanged', onClientStatusChanged);
+
+      // Initial clients load
+      const connectedClients = wsManager.getConnectedClients();
+      const formattedClients = connectedClients.map(client => ({
+        id: client.id,
+        name: `Client ${client.username}`,
+        username: client.username,
+        place: client.place,
+        online: client.online,
+        lastSeen: client.lastSeen
+      }));
+      
+      setClients(formattedClients);
+
+      // Cleanup function
+      return () => {
+        unsubscribeConnected();
+        unsubscribeDisconnected();
+        unsubscribeStatusChanged();
+      };
+    };
+
+    const cleanup = setupListeners();
     
     return () => {
-      // Clean up websocket connection when component unmounts
-      cleanupWebSocketListener();
+      if (cleanup) cleanup();
     };
   }, []);
-
-  // Mock function to simulate WebSocket connection setup
-  const setupWebSocketListener = () => {
-    // In a real application, this would set up a WebSocket connection
-    console.log("Setting up WebSocket listener for client updates");
-    
-    // This would normally be a WebSocket event handler
-    const mockClientUpdateInterval = setInterval(() => {
-      // Randomly update a client's status for demonstration
-      const randomClientIndex = Math.floor(Math.random() * mockClients.length);
-      if (Math.random() > 0.7) {
-        mockClients[randomClientIndex].online = !mockClients[randomClientIndex].online;
-        mockClients[randomClientIndex].lastSeen = new Date().toISOString();
-        setClients([...mockClients]);
-      }
-    }, 20000); // Every 20 seconds
-    
-    // Store the interval ID for cleanup
-    window._mockClientUpdateInterval = mockClientUpdateInterval;
-  };
-
-  // Mock function to clean up WebSocket listener
-  const cleanupWebSocketListener = () => {
-    // Clear the mock update interval
-    if (window._mockClientUpdateInterval) {
-      clearInterval(window._mockClientUpdateInterval);
-    }
-    
-    // In a real application, this would close the WebSocket connection
-    console.log("Cleaning up WebSocket listener");
-  };
 
   // Toggle client selection
   const toggleClientSelection = useCallback((clientId: string) => {
@@ -130,12 +127,20 @@ export const useClientManager = () => {
   const refreshClients = useCallback(() => {
     setIsRefreshing(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      // In a real application, this would fetch updated client list
-      setIsRefreshing(false);
-      toast.success("Client list refreshed");
-    }, 1000);
+    // Refresh from WebSocket manager
+    const connectedClients = wsManager.getConnectedClients();
+    const formattedClients = connectedClients.map(client => ({
+      id: client.id,
+      name: `Client ${client.username}`,
+      username: client.username,
+      place: client.place,
+      online: client.online,
+      lastSeen: client.lastSeen
+    }));
+    
+    setClients(formattedClients);
+    setIsRefreshing(false);
+    toast.success("Client list refreshed");
   }, []);
 
   // Send command to selected clients
@@ -145,12 +150,9 @@ export const useClientManager = () => {
       return;
     }
     
-    console.log(`Sending command "${command}" to clients:`, selectedClients);
+    // Send command to selected clients via WebSocket manager
+    wsManager.sendCommandToClients(selectedClients, command);
     
-    // Here, you would actually send the command to each client
-    // through your WebSocket connection
-    
-    // In this mock implementation, we'll just show success messages
     toast.success(`Command sent to ${selectedClients.length} client(s)`, {
       description: `Command: ${command}`,
     });
@@ -174,10 +176,3 @@ export const useClientManager = () => {
     refreshClients,
   };
 };
-
-// Add a declaration for the mock interval to the Window interface
-declare global {
-  interface Window {
-    _mockClientUpdateInterval?: NodeJS.Timeout;
-  }
-}

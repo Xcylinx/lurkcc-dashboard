@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Terminal, ArrowUpCircle, Wand2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { motion } from "framer-motion";
 
 interface CommandSenderProps {
   selectedClients: string[];
@@ -49,18 +50,24 @@ const CommandSender: React.FC<CommandSenderProps> = ({
           value={command}
           onChange={(e) => setCommand(e.target.value)}
           placeholder={disabled ? "Select clients first..." : "Type a command..."}
-          className="pr-24 font-mono text-sm bg-background/80 border-primary/20 focus-visible:border-primary/50 h-10"
+          className="pr-12 font-mono text-sm bg-background/80 border-border focus-visible:border-primary/50 h-10"
           disabled={disabled}
         />
-        <Button 
-          type="submit" 
-          size="sm" 
-          className="absolute right-1 top-1 h-8 bg-primary hover:bg-primary/90 border-none shadow-md"
-          disabled={disabled || !command.trim()}
+        <motion.div 
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="absolute right-2 top-1/2 -translate-y-1/2"
         >
-          <Send className="h-3.5 w-3.5 mr-1.5" />
-          Execute
-        </Button>
+          <Button 
+            type="submit" 
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 rounded-full flex items-center justify-center text-primary hover:text-primary/90 hover:bg-primary/10 focus:bg-primary/5 transition-colors"
+            disabled={disabled || !command.trim()}
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </motion.div>
       </form>
       
       {/* Command history */}
