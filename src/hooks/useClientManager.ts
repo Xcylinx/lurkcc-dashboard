@@ -8,10 +8,14 @@ export const useClientManager = () => {
   const [clients, setClients] = useState<RobloxClient[]>([]);
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSimulationMode, setIsSimulationMode] = useState(false);
   const wsManager = WebSocketManager.getInstance();
 
   // Load initial clients from WebSocket manager
   useEffect(() => {
+    // Check if we're in simulation mode
+    setIsSimulationMode(wsManager.isInSimulationMode());
+    
     // Set up event listeners for client connections/disconnections
     const setupListeners = () => {
       // Handle client connected event
@@ -61,11 +65,20 @@ export const useClientManager = () => {
           } : c)
         );
       };
+      
+      // Handle simulation mode activated
+      const onSimulationModeActivated = () => {
+        setIsSimulationMode(true);
+        toast.info("Simulation mode activated", {
+          description: "Using simulated clients for demonstration."
+        });
+      };
 
       // Register event listeners
       const unsubscribeConnected = wsManager.on('clientConnected', onClientConnected);
       const unsubscribeDisconnected = wsManager.on('clientDisconnected', onClientDisconnected);
       const unsubscribeStatusChanged = wsManager.on('clientStatusChanged', onClientStatusChanged);
+      const unsubscribeSimulation = wsManager.on('simulationModeActivated', onSimulationModeActivated);
 
       // Initial clients load
       const connectedClients = wsManager.getConnectedClients();
@@ -85,6 +98,7 @@ export const useClientManager = () => {
         unsubscribeConnected();
         unsubscribeDisconnected();
         unsubscribeStatusChanged();
+        unsubscribeSimulation();
       };
     };
 
@@ -153,7 +167,8 @@ export const useClientManager = () => {
     // Send command to selected clients via WebSocket manager
     wsManager.sendCommandToClients(selectedClients, command);
     
-    toast.success(`Command sent to ${selectedClients.length} client(s)`, {
+    const modeText = isSimulationMode ? " (Simulation)" : "";
+    toast.success(`Command sent to ${selectedClients.length} client(s)${modeText}`, {
       description: `Command: ${command}`,
     });
     
@@ -163,12 +178,13 @@ export const useClientManager = () => {
       clients: selectedClients,
       command: command
     }, "*");
-  }, [selectedClients]);
+  }, [selectedClients, isSimulationMode]);
 
   return {
     clients,
     selectedClients,
     isRefreshing,
+    isSimulationMode,
     sendCommand,
     toggleClientSelection,
     selectAllClients,
@@ -176,3 +192,4 @@ export const useClientManager = () => {
     refreshClients,
   };
 };
+

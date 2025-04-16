@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -24,11 +24,15 @@ import {
   Shield,
   Code,
   Copy,
+  ServerCrash,
+  Server,
 } from "lucide-react";
 import CommandSender from "@/components/CommandSender";
 import ClientsList from "@/components/ClientsList";
 import { useClientManager } from "@/hooks/useClientManager";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import WebSocketManager from "@/utils/websocketServer";
 
 const ClientManager = () => {
   const {
@@ -41,6 +45,23 @@ const ClientManager = () => {
     deselectAllClients,
     refreshClients,
   } = useClientManager();
+
+  const [isSimulationMode, setIsSimulationMode] = useState(false);
+  
+  // Check if we're in simulation mode
+  useEffect(() => {
+    const wsManager = WebSocketManager.getInstance();
+    setIsSimulationMode(wsManager.isInSimulationMode());
+    
+    // Listen for simulation mode changes
+    const unsubscribe = wsManager.on('simulationModeActivated', () => {
+      setIsSimulationMode(true);
+    });
+    
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const copyLuaCode = () => {
     const luaCode = `
@@ -150,13 +171,32 @@ end)`;
           <p className="text-muted-foreground">Manage and control your Roblox clients remotely</p>
         </motion.div>
 
+        {isSimulationMode && (
+          <Alert className="mb-6 bg-blue-500/10 border-blue-500/30">
+            <ServerCrash className="h-4 w-4 text-blue-500" />
+            <AlertTitle className="text-blue-500">Simulation Mode Active</AlertTitle>
+            <AlertDescription>
+              The WebSocket server at <code className="text-xs bg-muted p-0.5 rounded">wss://lurkcc-dashboard.lovable.app/ws</code> is not available. 
+              Using simulated clients for demonstration purposes.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left panel - Client list */}
           <Card className="lg:col-span-2 border-white/5 overflow-hidden">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Connected Clients</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Server className="h-4 w-4" />
+                    Connected Clients
+                    {isSimulationMode && (
+                      <span className="text-xs bg-blue-500/20 text-blue-500 px-2 py-0.5 rounded-full">
+                        Simulated
+                      </span>
+                    )}
+                  </CardTitle>
                   <CardDescription>
                     Select clients to send commands
                   </CardDescription>
@@ -325,6 +365,17 @@ end)`;
                       </TooltipProvider>
                     </div>
                   </div>
+                  
+                  {isSimulationMode && (
+                    <Alert className="bg-blue-500/10 border-blue-500/30">
+                      <ServerCrash className="h-4 w-4 text-blue-500" />
+                      <AlertTitle className="text-blue-500">No WebSocket Server Detected</AlertTitle>
+                      <AlertDescription className="text-xs">
+                        To use real clients, you need to deploy a WebSocket server at the URL above. 
+                        The application will fall back to simulation mode for demonstration purposes.
+                      </AlertDescription>
+                    </Alert>
+                  )}
                   
                   <div>
                     <h3 className="text-sm font-medium mb-1">Payload Format</h3>
