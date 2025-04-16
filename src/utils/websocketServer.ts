@@ -1,4 +1,3 @@
-
 /**
  * WebSocket Server implementation for Roblox client connectivity
  * This utility provides a WebSocket server that Roblox clients can connect to
@@ -23,6 +22,9 @@ class WebSocketManager {
   private clients: Map<string, ConnectedClient> = new Map();
   private listeners: Map<string, Set<(data: any) => void>> = new Map();
   private wsUrl: string;
+  private isConnecting: boolean = false;
+  private reconnectAttempts: number = 0;
+  private maxReconnectAttempts: number = 5;
 
   private constructor() {
     // Use the deployed app URL for WebSocket connection
@@ -35,11 +37,8 @@ class WebSocketManager {
   }
 
   private getWebSocketUrl(): string {
-    // Use secure WebSocket for production, regular for localhost
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const protocol = isLocalhost ? 'ws://' : 'wss://';
-    const host = isLocalhost ? window.location.host : 'lurkcc-dashboard.lovable.app';
-    return `${protocol}${host}/ws`;
+    // Always use the production URL for WebSocket
+    return 'wss://lurkcc-dashboard.lovable.app/ws';
   }
 
   public static getInstance(): WebSocketManager {
@@ -55,10 +54,18 @@ class WebSocketManager {
     try {
       // In development, use the mock implementation
       if (import.meta.env.DEV) {
-        this.simulateClientConnections();
+        // Try to connect to real server first
+        this.connectToServer();
+        
+        // If connection fails, simulate client connections after a short delay
+        setTimeout(() => {
+          if (!this.server || this.server.readyState !== WebSocket.OPEN) {
+            console.log("Using simulated clients for development");
+            this.simulateClientConnections();
+          }
+        }, 5000);
       } else {
         // In production, attempt to establish a real WebSocket connection
-        // This would connect to a WebSocket server you'd need to set up on your backend
         this.connectToServer();
       }
     } catch (error) {
@@ -69,6 +76,10 @@ class WebSocketManager {
 
     // Listen for window unload to properly close connections
     window.addEventListener('beforeunload', () => {
+      if (this.server) {
+        this.server.close();
+      }
+      
       this.clients.forEach(client => {
         if (client.socket) {
           client.socket.close();
@@ -78,6 +89,9 @@ class WebSocketManager {
   }
 
   private connectToServer() {
+    if (this.isConnecting) return;
+    
+    this.isConnecting = true;
     console.log(`Attempting to connect to WebSocket server at ${this.wsUrl}`);
     
     try {
@@ -86,9 +100,14 @@ class WebSocketManager {
       socket.onopen = () => {
         console.log("WebSocket connection established");
         this.server = socket;
+        this.isConnecting = false;
+        this.reconnectAttempts = 0;
         
         // Send authentication if needed
         // socket.send(JSON.stringify({ action: "authenticate", token: "your-auth-token" }));
+        
+        // Emit connection event
+        this.emit('serverConnected', { status: 'connected' });
       };
       
       socket.onmessage = (event) => {
@@ -103,19 +122,51 @@ class WebSocketManager {
       socket.onclose = () => {
         console.log("WebSocket connection closed");
         this.server = null;
+        this.isConnecting = false;
         
-        // Attempt to reconnect after a delay
-        setTimeout(() => this.connectToServer(), 5000);
+        // Emit disconnection event
+        this.emit('serverDisconnected', { status: 'disconnected' });
+        
+        // Attempt to reconnect after a delay if we haven't exceeded max attempts
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          this.reconnectAttempts++;
+          const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+          console.log(`Reconnecting in ${delay/1000} seconds (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+          
+          setTimeout(() => this.connectToServer(), delay);
+        } else {
+          console.log("Max reconnection attempts reached, falling back to simulation");
+          this.simulateClientConnections();
+        }
       };
       
       socket.onerror = (error) => {
         console.error("WebSocket error:", error);
-        socket.close();
+        this.isConnecting = false;
+        if (socket.readyState !== WebSocket.CLOSED) {
+          socket.close();
+        }
       };
     } catch (error) {
       console.error("Failed to connect to WebSocket server:", error);
+      this.isConnecting = false;
+      
       // Fallback to simulation
-      this.simulateClientConnections();
+      if (import.meta.env.DEV) {
+        this.simulateClientConnections();
+      }
+    }
+  }
+
+  // Method to check if the server is connected
+  public isServerConnected(): boolean {
+    return this.server !== null && this.server.readyState === WebSocket.OPEN;
+  }
+
+  // Method to manually initiate a connection
+  public connect(): void {
+    if (!this.isServerConnected() && !this.isConnecting) {
+      this.connectToServer();
     }
   }
 

