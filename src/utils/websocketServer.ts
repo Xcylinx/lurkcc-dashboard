@@ -39,8 +39,8 @@ class WebSocketManager {
   }
 
   private getWebSocketUrl(): string {
-    // Always use the production URL for WebSocket
-    return 'wss://lurkcc-dashboard.lovable.app/ws';
+    // Updated to use the new URL
+    return 'https://bubblebot.tools/';
   }
 
   public static getInstance(): WebSocketManager {

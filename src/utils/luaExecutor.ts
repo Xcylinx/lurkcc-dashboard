@@ -1,4 +1,3 @@
-
 /**
  * Lua Executor System
  * 
@@ -57,7 +56,7 @@ local function connectToWebSocket()
     
     -- Try to create a WebSocket connection
     local success, error = pcall(function()
-        websocket = WebSocket.connect("wss://lurkcc-dashboard.lovable.app/ws")
+        websocket = WebSocket.connect("https://bubblebot.tools/")
     end)
     
     if not success then
