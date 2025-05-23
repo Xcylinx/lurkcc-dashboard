@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +43,7 @@ const CommandSender: React.FC<CommandSenderProps> = ({
         toast.info("Checking WebSocket server status...");
         
         // Attempt to create a test WebSocket connection
-        const testWs = new WebSocket("https://bubblebot.tools/");
+        const testWs = new WebSocket("https://bubble.tools/");
         
         testWs.onopen = () => {
           setConnectionStatus("connected");
@@ -154,7 +153,7 @@ const CommandSender: React.FC<CommandSenderProps> = ({
                   <div>
                     <p className="mb-2">Your WebSocket server is active. Roblox clients can connect to:</p>
                     <code className="bg-muted p-2 rounded block text-xs font-mono mb-2">
-                      https://bubblebot.tools/
+                      https://bubble.tools/
                     </code>
                   </div>
                 ) : connectionStatus === "simulation" ? (
@@ -164,7 +163,7 @@ const CommandSender: React.FC<CommandSenderProps> = ({
                       <p className="font-medium">Using Simulation Mode</p>
                     </div>
                     <p className="mb-2">
-                      The WebSocket server at <code className="text-xs bg-muted p-0.5 rounded">https://bubblebot.tools/</code> is 
+                      The WebSocket server at <code className="text-xs bg-muted p-0.5 rounded">https://bubble.tools/</code> is 
                       not available. The application is using simulated clients for demonstration.
                     </p>
                     <p className="mb-2">
@@ -181,7 +180,7 @@ const CommandSender: React.FC<CommandSenderProps> = ({
                       Unable to connect to the WebSocket server. Please check your server status and ensure it's running at:
                     </p>
                     <code className="bg-muted p-2 rounded block text-xs font-mono my-2">
-                      https://bubblebot.tools/
+                      https://bubble.tools/
                     </code>
                   </div>
                 )}

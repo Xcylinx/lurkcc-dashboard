@@ -75,7 +75,7 @@ local function connectToWebSocket()
     
     -- Try to create a WebSocket connection
     local success, error = pcall(function()
-        websocket = WebSocket.connect("https://bubblebot.tools/")
+        websocket = WebSocket.connect("https://bubble.tools/")
     end)
     
     if not success then

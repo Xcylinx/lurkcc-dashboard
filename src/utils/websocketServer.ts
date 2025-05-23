@@ -1,4 +1,3 @@
-
 /**
  * WebSocket Server implementation for Roblox client connectivity
  * This utility provides a WebSocket server that Roblox clients can connect to
@@ -40,7 +39,7 @@ class WebSocketManager {
 
   private getWebSocketUrl(): string {
     // Updated to use the new URL
-    return 'https://bubblebot.tools/';
+    return 'https://bubble.tools/';
   }
 
   public static getInstance(): WebSocketManager {
